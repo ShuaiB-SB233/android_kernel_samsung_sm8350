@@ -718,7 +718,7 @@ static int __init __smem_alloc_secdbg_summary(size_t size)
 	return err;
 }
 
-static int _sec_debug_summary_init(void)
+static int __init _sec_debug_summary_init(void)
 {
 	int err;
 	size_t size = sizeof(struct sec_debug_summary);
@@ -792,13 +792,6 @@ static int _sec_debug_summary_init(void)
 #ifdef CONFIG_SEC_DEBUG_SUMMARY_DRIVER
 static int sec_debug_summary_probe(struct platform_device *pdev)
 {
-	int err = _sec_debug_summary_init();
-
-	if (err) {
-		pr_err("return with error[%d]", err);
-		return err;
-	}
-	
 	platform_set_drvdata(pdev, secdbg_summary);
 	return 0;
 }
@@ -825,6 +818,12 @@ struct platform_driver sec_debug_summary_driver = {
 static int __init sec_debug_summary_init(void)
 {
 	int err;
+
+	err = _sec_debug_summary_init();
+	if (err) {
+		pr_err("_sec_debug_summary_init failed[%d]\n", err);
+		return err;
+	}
 
 	err = platform_driver_register(&sec_debug_summary_driver);
 	if (err)
